@@ -1,25 +1,25 @@
 package config
 
 import (
-	"github.com/brianshepanek/gomvc"
+	"github.com/brianshepanek/gomc"
 )
 
-var LocalConfig = gomvc.AppConfig{
-	Databases : map[string]gomvc.DatabaseConfig{
-		"default" : gomvc.DatabaseConfig{
+var LocalConfig = gomc.AppConfig{
+	Databases : map[string]gomc.DatabaseConfig{
+		"default" : gomc.DatabaseConfig{
 			Host : "mongodb-server",
-			Database : "ugp_admin",
+			Database : "ugp_users",
 			Type : "mongodb",
 		},
-		"elasticsearch" : gomvc.DatabaseConfig{
+		"elasticsearch" : gomc.DatabaseConfig{
 			Host : "http://elasticsearch-server",
-			Database : "ugp_admin",
+			Database : "ugp_users",
 			Type : "elasticsearch",
 			Port : "9200",
 		},
-		"redis" : gomvc.DatabaseConfig{
-			Host : "redis-server",
-			Database : "ugp_admin_22",
+		"redis" : gomc.DatabaseConfig{
+			Host : "redis",
+			Database : "ugp_users",
 			Type : "redis",
 			Port : "6379",
 		},

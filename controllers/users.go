@@ -3,11 +3,12 @@ package controllers
 import (
     "net/http"
     "github.com/gorilla/mux"
-    //"github.com/gorilla/context"
+    "github.com/gorilla/context"
     "gopkg.in/mgo.v2/bson"
-    "app/models"
+    "users/models"
     "encoding/json"
-    "github.com/brianshepanek/gomvc"
+    "github.com/brianshepanek/gomc"
+    //"fmt"
 )
 
 
@@ -15,9 +16,9 @@ import (
 func UsersIndex(w http.ResponseWriter, r *http.Request) {
     
     var data []models.UserSchema
-    params := gomvc.UrlMapToParams(r.URL.Query())
+    params := gomc.UrlMapToParams(r.URL.Query())
     //params.Query["organization_id"] = context.Get(r, RequestOrganizationId)
-    gomvc.Find(&models.User, params, &data)
+    gomc.Find(&models.User, params, &data)
 
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(data)
@@ -27,7 +28,9 @@ func UsersIndex(w http.ResponseWriter, r *http.Request) {
 func UsersView(w http.ResponseWriter, r *http.Request){
 
     var datum models.UserSchema
-    gomvc.FindId(&models.User, mux.Vars(r)["id"], &datum)
+    models.User.CachePrefix = context.Get(r, gomc.RequestOrganizationId).(string) + ":"
+
+    gomc.FindId(&models.User, mux.Vars(r)["id"], &datum)
     
     if datum.Id != "" {
         w.WriteHeader(http.StatusOK)
@@ -42,19 +45,23 @@ func UsersAdd(w http.ResponseWriter, r *http.Request){
     //Request Data
     var datum, result models.UserSchema
     json.NewDecoder(r.Body).Decode(&datum)
-    //datum.OrganizationId = context.Get(r, RequestOrganizationId).(string)
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
 
     //Set Data to Model
     models.User.Data = datum
 
     //Save
-    gomvc.Save(&models.User, &result)
+    gomc.Save(&models.User, &result)
     if len(models.User.ValidationErrors) == 0 {
         w.WriteHeader(http.StatusCreated)
         json.NewEncoder(w).Encode(models.User.Data)
     } else {
         w.WriteHeader(http.StatusForbidden)
-        json.NewEncoder(w).Encode(models.User.ValidationErrors)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.User.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
     }
 }
 
@@ -71,20 +78,24 @@ func UsersEdit(w http.ResponseWriter, r *http.Request){
     models.User.Data = datum
     
     //Save
-    gomvc.Save(&models.User, &result)
+    gomc.Save(&models.User, &result)
     if len(models.User.ValidationErrors) == 0 {
         w.WriteHeader(http.StatusCreated)
         json.NewEncoder(w).Encode(result)
     } else {
         w.WriteHeader(http.StatusForbidden)
-        json.NewEncoder(w).Encode(models.User.ValidationErrors)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.User.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
     }
 }
 
 func UsersDelete(w http.ResponseWriter, r *http.Request){
 
     var datum models.UserSchema
-    gomvc.DeleteId(&models.User, mux.Vars(r)["id"], &datum)
+    gomc.DeleteId(&models.User, mux.Vars(r)["id"], &datum)
     
     if datum.Id != "" {
         w.WriteHeader(http.StatusOK)
@@ -97,11 +108,39 @@ func UsersDelete(w http.ResponseWriter, r *http.Request){
 func UsersWebSocket(w http.ResponseWriter, r *http.Request) {
     
     channel := "users"
-    err := gomvc.WebSocketRegister(channel, w, r)
+    err := gomc.WebSocketRegister(channel, w, r)
     if err != nil {
 
     }
 }
+
+func UsersLogin(w http.ResponseWriter, r *http.Request){
+    
+    //Check Data
+    var datum, result models.UserLoginSchema
+    json.NewDecoder(r.Body).Decode(&datum)
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+    models.UserLogin.Data = datum
+    
+    //Validate
+    gomc.Validate(&models.UserLogin, &result)
+    if len(models.UserLogin.ValidationErrors) == 0 {
+
+        //Login
+        user, errors := models.User.Login(datum.OrganizationId, datum.Email, datum.Password)
+        if len(errors) == 0 {
+            w.WriteHeader(http.StatusOK)
+            json.NewEncoder(w).Encode(user)
+        } else {
+            w.WriteHeader(http.StatusForbidden)
+            json.NewEncoder(w).Encode(errors)
+        }
+    } else {
+        w.WriteHeader(http.StatusForbidden)
+        json.NewEncoder(w).Encode(models.UserLogin.ValidationErrors)
+    }
+}
+
 /*
 func RootUsersAdd(w http.ResponseWriter, r *http.Request){
 

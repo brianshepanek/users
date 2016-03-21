@@ -3,9 +3,9 @@ package controllers
 import (
     "fmt"
     "net/http"
-    "app/models"
+    "users/models"
     "encoding/json"
-    "github.com/brianshepanek/gomvc"
+    "github.com/brianshepanek/gomc"
 )
 
 
@@ -22,7 +22,7 @@ func RootUsersAdd(w http.ResponseWriter, r *http.Request){
     w.Header().Set("Content-Type", "application/json")
     
     //Save
-    gomvc.Save(&models.RootUser, &result)
+    gomc.Save(&models.RootUser, &result)
     if len(models.RootUser.ValidationErrors) == 0 {
         w.WriteHeader(http.StatusCreated)
         json.NewEncoder(w).Encode(result)

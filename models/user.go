@@ -2,13 +2,14 @@ package models
 
 import (
 	"time"
-	"app/config"
+	"users/config"
 	"gopkg.in/mgo.v2/bson"
-	"github.com/brianshepanek/gomvc"
+	"github.com/brianshepanek/gomc"
+	//"fmt"
 )
 
 type UserModel struct {
-	gomvc.Model
+	gomc.Model
 }
 
 type UserSchema struct {
@@ -28,7 +29,7 @@ type UserSchema struct {
 var userSchema UserSchema
 
 var User = UserModel{
-	gomvc.Model {
+	gomc.Model {
 		AppConfig : config.Config,
 		UseDatabaseConfig : "default",
 		UseTable : "users",
@@ -41,18 +42,18 @@ var User = UserModel{
 		CacheDataUseTable : "users",
 		WebSocketPushData : true,
 		Sort : "_id",
-		Limit : 10,
+		Limit : 25,
 		Schema : userSchema,
-		ValidationRules : map[string][]gomvc.ValidationRule{
-			"ForeignKey" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+		ValidationRules : map[string][]gomc.ValidationRule{
+			"ForeignKey" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter a Foreign Key",
 					ValidatedOnActions : []string{
 						"create",
 					},
 				},
-				gomvc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "IsAlphanumeric",
 					Message : "Please Enter an Alphanumeric Foreign Key",
 					ValidatedOnActions : []string{
@@ -61,8 +62,8 @@ var User = UserModel{
 					},
 				},
 			},
-			"Username" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+			"Username" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter a Username",
 					ValidatedOnActions : []string{
@@ -70,15 +71,15 @@ var User = UserModel{
 					},
 				},
 			},
-			"FirstName" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+			"FirstName" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter a First Name",
 					ValidatedOnActions : []string{
 						"create",
 					},
 				},
-				gomvc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "IsAlpha",
 					Message : "First Name Must Be Only Letters",
 					ValidatedOnActions : []string{
@@ -87,15 +88,15 @@ var User = UserModel{
 					},
 				},
 			},
-			"LastName" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+			"LastName" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter a Last Name",
 					ValidatedOnActions : []string{
 						"create",
 					},
 				},
-				gomvc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "IsAlpha",
 					Message : "Last Name Must Be Only Letters",
 					ValidatedOnActions : []string{
@@ -104,15 +105,15 @@ var User = UserModel{
 					},
 				},
 			},
-			"Email" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+			"Email" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter an Email Address",
 					ValidatedOnActions : []string{
 						"create",
 					},
 				},
-				gomvc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "IsEmail",
 					Message : "Please Enter a Valid Email Address",
 					ValidatedOnActions : []string{
@@ -132,15 +133,20 @@ func (m *UserModel) AfterValidate(){
 	
 	//Unique Foreign Key
 	var result UserSchema
-	params := gomvc.Params{
+	params := gomc.Params{
 		Query : map[string]interface{}{
+			"_id" : map[string]bson.ObjectId{
+				"$ne" : data.Id,
+			},
 			"foreign_key" : data.ForeignKey,
+			"organization_id" : data.OrganizationId,
+			"root" : false,
 		},
 	}
-	gomvc.FindOne(&User, params, &result)
+	gomc.FindOne(&User, params, &result)
 	if result.ForeignKey != "" {
-		error := gomvc.RequestError{
-            Field : gomvc.JsonKeyFromStructKey(m.Schema, "ForeignKey"),
+		error := gomc.RequestError{
+            Field : gomc.JsonKeyFromStructKey(m.Schema, "ForeignKey"),
             Message : "ForeignKey " + data.ForeignKey + " is Not Unique",
         }
         errors = append(errors, error)
@@ -148,15 +154,20 @@ func (m *UserModel) AfterValidate(){
 	
 	//Unique Username
 	var result2 UserSchema
-	params = gomvc.Params{
+	params = gomc.Params{
 		Query : map[string]interface{}{
+			"_id" : map[string]bson.ObjectId{
+				"$ne" : data.Id,
+			},
 			"username" : data.Username,
+			"organization_id" : data.OrganizationId,
+			"root" : false,
 		},
 	}
-	gomvc.FindOne(&User, params, &result2)
+	gomc.FindOne(&User, params, &result2)
 	if result2.Username != "" {
-		error := gomvc.RequestError{
-            Field : gomvc.JsonKeyFromStructKey(m.Schema, "Username"),
+		error := gomc.RequestError{
+            Field : gomc.JsonKeyFromStructKey(m.Schema, "Username"),
             Message : "Username " + data.Username + " is Not Unique",
         }
         errors = append(errors, error)
@@ -164,15 +175,20 @@ func (m *UserModel) AfterValidate(){
 
 	//Unique Email
 	var result3 UserSchema
-	params = gomvc.Params{
+	params = gomc.Params{
 		Query : map[string]interface{}{
+			"_id" : map[string]bson.ObjectId{
+				"$ne" : data.Id,
+			},
 			"email" : data.Email,
+			"organization_id" : data.OrganizationId,
+			"root" : false,
 		},
 	}
-	gomvc.FindOne(&User, params, &result3)
+	gomc.FindOne(&User, params, &result3)
 	if result3.Email != "" {
-		error := gomvc.RequestError{
-            Field : gomvc.JsonKeyFromStructKey(m.Schema, "Email"),
+		error := gomc.RequestError{
+            Field : gomc.JsonKeyFromStructKey(m.Schema, "Email"),
             Message : "Email " + data.Email + " is Not Unique",
         }
         errors = append(errors, error)
@@ -189,8 +205,20 @@ func (m *UserModel) BeforeSave(){
 
 	//Add Data
 	if m.SaveAction == "create" {
-		data.Id = bson.NewObjectId()
+
+		//Salt
+        salt, _ := gomc.GenerateRandomString(32)
+
+        //Hashed Password
+        hashedPassword := gomc.HashString(salt, data.Password)
+
+        //Set
+        data.Id = bson.NewObjectId()
+		data.Salt = salt
+		data.Password = hashedPassword
+		data.Root = false
     	data.Created = time.Now()
+
 	}
 	
     data.Modified = time.Now()
@@ -217,7 +245,7 @@ func (m *UserModel) BeforeCache(){
 	data := m.Data.(UserSchema)
 
 	//Add Data
-	m.CacheId = data.Id.Hex()
+	m.CacheId = data.OrganizationId + ":" + data.Id.Hex()
 
 }
 
@@ -231,3 +259,35 @@ func (m *UserModel) BeforeWebSocketPush(){
 	m.WebSocketPushChannel = "users"
 }
 
+func (m *UserModel) Login(organizationId string, email string, password string) (UserSchema, []gomc.RequestError){
+	
+	//Type Assert
+	var result UserSchema
+	errors := []gomc.RequestError{
+        gomc.RequestError{
+            Field : "user",
+            Message : "Authorization Failed",
+        },
+    }
+
+	//Check Email
+	params := gomc.Params{
+		Query : map[string]interface{}{
+			"email" : email,
+			"organization_id" : organizationId,
+			"root" : false,
+		},
+	}
+	gomc.FindOne(&User, params, &result)
+
+	//Add Data
+	if result.Id != "" {
+
+        hashedPassword := gomc.HashString(result.Salt, password)
+        if(hashedPassword == result.Password){
+            errors = []gomc.RequestError{}
+        }
+    }  
+	
+    return result, errors
+}

@@ -1,16 +1,16 @@
 package main 
 
 import (
-    "app/config"
-    "app/controllers"
-    "app/models"
-    "github.com/brianshepanek/gomvc"
+    "users/config"
+    "users/controllers"
+    "users/models"
+    "github.com/brianshepanek/gomc"
 )
 
 func main() {
     
-    gomvc.RegisterRoute(
-        gomvc.Route{
+    gomc.RegisterRoute(
+        gomc.Route{
             Path : "/users",
             Handler : controllers.UsersIndex,
             Methods : []string{
@@ -20,8 +20,30 @@ func main() {
             RateLimitRequest : true,
         },
     )
-    gomvc.RegisterRoute(
-        gomvc.Route{
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/users/{id}",
+            Handler : controllers.UsersView,
+            Methods : []string{
+                "GET",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/users/{id}",
+            Handler : controllers.UsersEdit,
+            Methods : []string{
+                "PATCH",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
             Path : "/users",
             Handler : controllers.UsersAdd,
             Methods : []string{
@@ -30,11 +52,12 @@ func main() {
             HeadersRegexp : []string{
                 "Authorization", "^Bearer",
             },
+            ValidateRequest : true,
             RateLimitRequest : true,
         },
     )
-    gomvc.RegisterRoute(
-        gomvc.Route{
+    gomc.RegisterRoute(
+        gomc.Route{
             Path : "/users",
             Handler : controllers.RootUsersAdd,
             Methods : []string{
@@ -43,19 +66,30 @@ func main() {
             RateLimitRequest : true,
         },
     )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/login",
+            Handler : controllers.UsersLogin,
+            Methods : []string{
+                "POST",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
 
     //Validate
-    gomvc.Config = config.Config
+    gomc.Config = config.Config
 
     var result models.RootUserSchema
-    gomvc.Config.RequestValidateModel = &models.User
-    gomvc.Config.RequestValidateData = &result
+    gomc.Config.RequestValidateModel = &models.User
+    gomc.Config.RequestValidateData = &result
 
     //Rate Limit
-    gomvc.Config.LimitNonUser = 10
-    gomvc.Config.LimitUser = 1000
-    gomvc.Config.RateLimitDataUseDatabaseConfig = "redis"
+    gomc.Config.LimitNonUser = 100
+    gomc.Config.LimitUser = 1000000000000
+    gomc.Config.RateLimitDataUseDatabaseConfig = "redis"
 
-    gomvc.Run()
+    gomc.Run()
     
 }

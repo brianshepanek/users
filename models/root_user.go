@@ -2,13 +2,13 @@ package models
 
 import (
 	"time"
-	"app/config"
+	"users/config"
 	"gopkg.in/mgo.v2/bson"
-	"github.com/brianshepanek/gomvc"
+	"github.com/brianshepanek/gomc"
 )
 
 type RootUserModel struct {
-	gomvc.Model
+	gomc.Model
 }
 
 type RootUserSchema struct {
@@ -25,7 +25,7 @@ type RootUserSchema struct {
 var rootUserSchema RootUserSchema
 
 var RootUser = RootUserModel{
-	gomvc.Model {
+	gomc.Model {
 		AppConfig : config.Config,
 		UseDatabaseConfig : "default",
 		UseTable : "users",
@@ -40,16 +40,16 @@ var RootUser = RootUserModel{
 		Sort : "_id",
 		Limit : 10,
 		Schema : rootUserSchema,
-		ValidationRules : map[string][]gomvc.ValidationRule{
-			"Email" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+		ValidationRules : map[string][]gomc.ValidationRule{
+			"Email" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter an Email Address",
 					ValidatedOnActions : []string{
 						"create",
 					},
 				},
-				gomvc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "IsEmail",
 					Message : "Please Enter a Valid Email Address",
 					ValidatedOnActions : []string{
@@ -58,8 +58,8 @@ var RootUser = RootUserModel{
 					},
 				},
 			},
-			"Password" : []gomvc.ValidationRule{
-				gomvc.ValidationRule{
+			"Password" : []gomc.ValidationRule{
+				gomc.ValidationRule{
 					Rule : "NotEmpty",
 					Message : "Please Enter a Password",
 					ValidatedOnActions : []string{
@@ -78,16 +78,16 @@ func (m *RootUserModel) AfterValidate(){
 	
 	//Unique Email
 	var result RootUserSchema
-	params := gomvc.Params{
+	params := gomc.Params{
 		Query : map[string]interface{}{
 			"email" : data.Email,
 			"root" : true,
 		},
 	}
-	gomvc.FindOne(&RootUser, params, &result)
+	gomc.FindOne(&RootUser, params, &result)
 	if result.Email != "" {
-		error := gomvc.RequestError{
-            Field : gomvc.JsonKeyFromStructKey(m.Schema, "Email"),
+		error := gomc.RequestError{
+            Field : gomc.JsonKeyFromStructKey(m.Schema, "Email"),
             Message : "Email " + data.Email + " is Not Unique",
         }
         errors = append(errors, error)
@@ -106,16 +106,16 @@ func (m *RootUserModel) BeforeSave(){
 	if m.SaveAction == "create" {
 
 		//Salt
-        salt, _ := gomvc.GenerateRandomString(32)
+        salt, _ := gomc.GenerateRandomString(32)
 
         //API Key
-        apiKey, _ := gomvc.GenerateRandomString(32)
+        apiKey, _ := gomc.GenerateRandomString(32)
 
         //Organization ID
-        organizationId, _ := gomvc.GenerateRandomString(32)
+        organizationId, _ := gomc.GenerateRandomString(32)
         
         //Hashed Password
-        hashedPassword := gomvc.HashString(salt, data.Password)
+        hashedPassword := gomc.HashString(salt, data.Password)
 
         //Set
         data.Id = bson.NewObjectId()
