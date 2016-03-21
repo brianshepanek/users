@@ -95,6 +95,8 @@ func UsersEdit(w http.ResponseWriter, r *http.Request){
 func UsersDelete(w http.ResponseWriter, r *http.Request){
 
     var datum models.UserSchema
+    models.User.CachePrefix = context.Get(r, gomc.RequestOrganizationId).(string) + ":"
+    
     gomc.DeleteId(&models.User, mux.Vars(r)["id"], &datum)
     
     if datum.Id != "" {

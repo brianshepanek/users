@@ -44,6 +44,17 @@ func main() {
     )
     gomc.RegisterRoute(
         gomc.Route{
+            Path : "/users/{id}",
+            Handler : controllers.UsersDelete,
+            Methods : []string{
+                "DELETE",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
             Path : "/users",
             Handler : controllers.UsersAdd,
             Methods : []string{
