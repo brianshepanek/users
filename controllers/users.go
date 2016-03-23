@@ -8,7 +8,7 @@ import (
     "users/models"
     "encoding/json"
     "github.com/brianshepanek/gomc"
-    //"fmt"
+    "fmt"
 )
 
 
@@ -47,6 +47,8 @@ func UsersAdd(w http.ResponseWriter, r *http.Request){
     json.NewDecoder(r.Body).Decode(&datum)
     datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
 
+    fmt.Println(datum)
+
     //Set Data to Model
     models.User.Data = datum
 
@@ -72,7 +74,7 @@ func UsersEdit(w http.ResponseWriter, r *http.Request){
 
     json.NewDecoder(r.Body).Decode(&datum)
     datum.Id = bson.ObjectIdHex(mux.Vars(r)["id"])
-    //datum.OrganizationId = context.Get(r, RequestOrganizationId).(string)
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
     
     //Set Data to Model
     models.User.Data = datum
@@ -96,7 +98,7 @@ func UsersDelete(w http.ResponseWriter, r *http.Request){
 
     var datum models.UserSchema
     models.User.CachePrefix = context.Get(r, gomc.RequestOrganizationId).(string) + ":"
-    
+
     gomc.DeleteId(&models.User, mux.Vars(r)["id"], &datum)
     
     if datum.Id != "" {

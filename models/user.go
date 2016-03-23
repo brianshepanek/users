@@ -5,6 +5,7 @@ import (
 	"users/config"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/brianshepanek/gomc"
+	//"regexp"
 	//"fmt"
 )
 
@@ -68,6 +69,25 @@ var User = UserModel{
 					Message : "Please Enter a Username",
 					ValidatedOnActions : []string{
 						"create",
+					},
+				},
+			},
+			"Password" : []gomc.ValidationRule{
+				gomc.ValidationRule{
+					Rule : "NotEmpty",
+					Message : "Please Enter a Password",
+					ValidatedOnActions : []string{
+						"create",
+					},
+				},
+				gomc.ValidationRule{
+					Rule : "IsByteLength",
+					Min : 8,
+					Max : 36,
+					Message : "Password Must Be Between 8 and 36 Characters",
+					ValidatedOnActions : []string{
+						"create",
+						"update",
 					},
 				},
 			},
@@ -135,13 +155,16 @@ func (m *UserModel) AfterValidate(){
 	var result UserSchema
 	params := gomc.Params{
 		Query : map[string]interface{}{
-			"_id" : map[string]bson.ObjectId{
-				"$ne" : data.Id,
-			},
 			"foreign_key" : data.ForeignKey,
 			"organization_id" : data.OrganizationId,
 			"root" : false,
 		},
+	}
+	if m.SaveAction == "update"{
+		params.Query["_id"] = make(map[string]bson.ObjectId)
+		params.Query["_id"] = map[string]bson.ObjectId{
+			"$ne" : data.Id,
+		}
 	}
 	gomc.FindOne(&User, params, &result)
 	if result.ForeignKey != "" {
@@ -156,13 +179,16 @@ func (m *UserModel) AfterValidate(){
 	var result2 UserSchema
 	params = gomc.Params{
 		Query : map[string]interface{}{
-			"_id" : map[string]bson.ObjectId{
-				"$ne" : data.Id,
-			},
 			"username" : data.Username,
 			"organization_id" : data.OrganizationId,
 			"root" : false,
 		},
+	}
+	if m.SaveAction == "update"{
+		params.Query["_id"] = make(map[string]bson.ObjectId)
+		params.Query["_id"] = map[string]bson.ObjectId{
+			"$ne" : data.Id,
+		}
 	}
 	gomc.FindOne(&User, params, &result2)
 	if result2.Username != "" {
@@ -177,14 +203,18 @@ func (m *UserModel) AfterValidate(){
 	var result3 UserSchema
 	params = gomc.Params{
 		Query : map[string]interface{}{
-			"_id" : map[string]bson.ObjectId{
-				"$ne" : data.Id,
-			},
 			"email" : data.Email,
 			"organization_id" : data.OrganizationId,
 			"root" : false,
 		},
 	}
+	if m.SaveAction == "update"{
+		params.Query["_id"] = make(map[string]bson.ObjectId)
+		params.Query["_id"] = map[string]bson.ObjectId{
+			"$ne" : data.Id,
+		}
+	}
+
 	gomc.FindOne(&User, params, &result3)
 	if result3.Email != "" {
 		error := gomc.RequestError{
@@ -193,7 +223,21 @@ func (m *UserModel) AfterValidate(){
         }
         errors = append(errors, error)
 	}
-	
+	/*
+	//Strong Password
+	matched, err := regexp.MatchString(`^(?=(.*[a-zA-Z].*){2,})(?=.*\d.*)(?=.*\W.*)[a-zA-Z0-9\S]{8,25}$`, data.Password)
+	fmt.Println(data.Password)
+	fmt.Println(matched)
+	fmt.Println(err)
+
+	if matched == false {
+		error := gomc.RequestError{
+            Field : gomc.JsonKeyFromStructKey(m.Schema, "Password"),
+            Message : "Password Must Be Between 8 and 25 Characters With 2 Letters, 1 Number, 1 Special Character and No Spaces",
+        }
+        errors = append(errors, error)
+	}
+	*/
 	//Return Errors
 	m.ValidationErrors = errors
 }
