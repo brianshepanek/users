@@ -45,6 +45,51 @@ func main() {
     gomc.RegisterRoute(
         gomc.Route{
             Path : "/users/{id}",
+            Handler : controllers.UsersEdit,
+            Methods : []string{
+                "POST",
+            },
+            Headers : []string{
+                "X-HTTP-Method-Override", "PATCH",
+            },
+            HeadersRegexp : []string{
+                "Authorization", "^Bearer",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/password/{id}",
+            Handler : controllers.UsersUpdatePassword,
+            Methods : []string{
+                "PATCH",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/password/{id}",
+            Handler : controllers.UsersUpdatePassword,
+            Methods : []string{
+                "POST",
+            },
+            Headers : []string{
+                "X-HTTP-Method-Override", "PATCH",
+            },
+            HeadersRegexp : []string{
+                "Authorization", "^Bearer",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/users/{id}",
             Handler : controllers.UsersDelete,
             Methods : []string{
                 "DELETE",
@@ -81,6 +126,28 @@ func main() {
         gomc.Route{
             Path : "/login",
             Handler : controllers.UsersLogin,
+            Methods : []string{
+                "POST",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/reset_password_request",
+            Handler : controllers.UsersPasswordResetRequest,
+            Methods : []string{
+                "POST",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/reset_password",
+            Handler : controllers.UsersPasswordReset,
             Methods : []string{
                 "POST",
             },

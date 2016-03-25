@@ -265,6 +265,18 @@ func (m *UserModel) BeforeSave(){
 
 	}
 	
+	if m.SaveAction == "update" && data.Password != "" {
+
+		//Salt
+        salt, _ := gomc.GenerateRandomString(32)
+
+        //Hashed Password
+        hashedPassword := gomc.HashString(salt, data.Password)
+
+        data.Salt = salt
+		data.Password = hashedPassword
+	}
+
     data.Modified = time.Now()
     
     //Add Back Into Model
@@ -324,6 +336,39 @@ func (m *UserModel) Login(organizationId string, email string, password string) 
 	}
 	gomc.FindOne(&User, params, &result)
 
+	//Add Data
+	if result.Id != "" {
+
+        hashedPassword := gomc.HashString(result.Salt, password)
+        if(hashedPassword == result.Password){
+            errors = []gomc.RequestError{}
+        }
+    }  
+	
+    return result, errors
+}
+
+func (m *UserModel) CheckPassword(organizationId string, id bson.ObjectId, password string) (UserSchema, []gomc.RequestError){
+	
+	//Type Assert
+	var result UserSchema
+	errors := []gomc.RequestError{
+        gomc.RequestError{
+            Field : "current_password",
+            Message : "Current Password Does Not Match",
+        },
+    }
+
+	//Check Email
+	params := gomc.Params{
+		Query : map[string]interface{}{
+			"_id" : id,
+			"organization_id" : organizationId,
+			"root" : false,
+		},
+	}
+	gomc.FindOne(&User, params, &result)
+	
 	//Add Data
 	if result.Id != "" {
 

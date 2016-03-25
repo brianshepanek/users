@@ -8,7 +8,8 @@ import (
     "users/models"
     "encoding/json"
     "github.com/brianshepanek/gomc"
-    "fmt"
+    "time"
+    //"fmt"
 )
 
 
@@ -47,8 +48,6 @@ func UsersAdd(w http.ResponseWriter, r *http.Request){
     json.NewDecoder(r.Body).Decode(&datum)
     datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
 
-    fmt.Println(datum)
-
     //Set Data to Model
     models.User.Data = datum
 
@@ -73,9 +72,10 @@ func UsersEdit(w http.ResponseWriter, r *http.Request){
     var datum, result models.UserSchema
 
     json.NewDecoder(r.Body).Decode(&datum)
+
     datum.Id = bson.ObjectIdHex(mux.Vars(r)["id"])
     datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
-    
+
     //Set Data to Model
     models.User.Data = datum
     
@@ -137,7 +137,11 @@ func UsersLogin(w http.ResponseWriter, r *http.Request){
             json.NewEncoder(w).Encode(user)
         } else {
             w.WriteHeader(http.StatusForbidden)
-            json.NewEncoder(w).Encode(errors)
+            response := gomc.RequestErrorWrapper{
+                Message : "Validation Failed",
+                Errors : errors,
+            }
+            json.NewEncoder(w).Encode(response)
         }
     } else {
         w.WriteHeader(http.StatusForbidden)
@@ -145,6 +149,174 @@ func UsersLogin(w http.ResponseWriter, r *http.Request){
     }
 }
 
+func UsersUpdatePassword(w http.ResponseWriter, r *http.Request){
+
+    //Check Data
+    var datum, result models.UserPasswordUpdateSchema
+
+    json.NewDecoder(r.Body).Decode(&datum)
+
+    datum.Id = bson.ObjectIdHex(mux.Vars(r)["id"])
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+    models.UserPasswordUpdate.Data = datum
+    
+    //Validate
+    gomc.Validate(&models.UserPasswordUpdate, &result)
+
+    
+    if len(models.UserPasswordUpdate.ValidationErrors) == 0 {
+
+        //Check Password
+        _, errors := models.User.CheckPassword(datum.OrganizationId, datum.Id, datum.CurrentPassword)
+        if len(errors) == 0 {
+            
+            var datum2, result2 models.UserSchema
+            datum2.Id = bson.ObjectIdHex(mux.Vars(r)["id"])
+            datum2.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+            datum2.Password = datum.NewPassword
+            models.User.Data = datum2
+
+            //Save
+            gomc.Save(&models.User, &result2)
+            if len(models.User.ValidationErrors) == 0 {
+                w.WriteHeader(http.StatusCreated)
+                json.NewEncoder(w).Encode(result2)
+            } else {
+                w.WriteHeader(http.StatusForbidden)
+                response := gomc.RequestErrorWrapper{
+                    Message : "Validation Failed",
+                    Errors : models.User.ValidationErrors,
+                }
+                json.NewEncoder(w).Encode(response)
+            }
+        } else {
+            w.WriteHeader(http.StatusForbidden)
+            response := gomc.RequestErrorWrapper{
+                Message : "Validation Failed",
+                Errors : errors,
+            }
+            json.NewEncoder(w).Encode(response)
+        }
+    } else {
+        w.WriteHeader(http.StatusForbidden)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.UserPasswordUpdate.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
+    }
+    
+}
+
+func UsersPasswordResetRequest(w http.ResponseWriter, r *http.Request){
+
+    //Check Data
+    var datum, result models.UserPasswordResetRequestSchema
+
+    json.NewDecoder(r.Body).Decode(&datum)
+
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+    models.UserPasswordResetRequest.Data = datum
+
+    //Save
+    gomc.Validate(&models.UserPasswordResetRequest, &result)
+    if len(models.UserPasswordResetRequest.ValidationErrors) == 0 {
+
+        var result2 models.UserSchema
+        params := gomc.Params{
+            Query : map[string]interface{}{
+                "email" : datum.Email,
+                "organization_id" : datum.OrganizationId,
+                "root" : false,
+            },
+        }
+        gomc.FindOne(&models.User, params, &result2)
+        if result2.Id != ""{
+            datum.UserId = result2.Id.Hex()
+        }
+        models.UserPasswordResetRequest.Data = datum
+        gomc.Save(&models.UserPasswordResetRequest, &result)
+
+        w.WriteHeader(http.StatusCreated)
+        json.NewEncoder(w).Encode(result)
+    } else {
+        w.WriteHeader(http.StatusForbidden)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.UserPasswordResetRequest.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
+    }
+}
+
+func UsersPasswordReset(w http.ResponseWriter, r *http.Request){
+
+    //Check Data
+    var datum, result models.UserPasswordResetSchema
+
+    json.NewDecoder(r.Body).Decode(&datum)
+
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+    models.UserPasswordReset.Data = datum
+
+    //Save
+    gomc.Validate(&models.UserPasswordReset, &result)
+    if len(models.UserPasswordReset.ValidationErrors) == 0 {
+
+        var result2 models.UserPasswordResetRequestSchema
+        params := gomc.Params{
+            Query : map[string]interface{}{
+                "reset_key" : datum.ResetKey,
+                "organization_id" : datum.OrganizationId,
+            },
+        }
+        gomc.FindOne(&models.UserPasswordResetRequest, params, &result2)
+        if result2.UserId != "" && time.Now().Before(result2.Expires){
+
+            var datum2, result3 models.UserSchema
+            datum2.Id = bson.ObjectIdHex(result2.UserId)
+            datum2.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+            datum2.Password = datum.Password
+            models.User.Data = datum2
+
+            //Save
+            gomc.Save(&models.User, &result3)
+            if len(models.User.ValidationErrors) == 0 {
+
+                gomc.DeleteId(&models.UserPasswordResetRequest, result2.Id.Hex(), &datum)
+                w.WriteHeader(http.StatusCreated)
+                json.NewEncoder(w).Encode(result3)
+            } else {
+                w.WriteHeader(http.StatusForbidden)
+                response := gomc.RequestErrorWrapper{
+                    Message : "Validation Failed",
+                    Errors : models.User.ValidationErrors,
+                }
+                json.NewEncoder(w).Encode(response)
+            }
+        } else {
+            w.WriteHeader(http.StatusForbidden)
+            response := gomc.RequestErrorWrapper{
+                Message : "Validation Failed",
+                Errors : []gomc.RequestError{
+                    gomc.RequestError{
+                        Field : "reset_key",
+                        Message : "Reset Key Invalid or Expired",
+                    },
+                },
+            }
+            json.NewEncoder(w).Encode(response)
+        }
+        
+    } else {
+        w.WriteHeader(http.StatusForbidden)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.UserPasswordReset.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
+    }
+}
 /*
 func RootUsersAdd(w http.ResponseWriter, r *http.Request){
 
