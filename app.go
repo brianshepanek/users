@@ -33,6 +33,34 @@ func main() {
     )
     gomc.RegisterRoute(
         gomc.Route{
+            Path : "/users/{id}/validate",
+            Handler : controllers.UsersEditValidate,
+            Methods : []string{
+                "PATCH",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/users/{id}/validate",
+            Handler : controllers.UsersEditValidate,
+            Methods : []string{
+                "POST",
+            },
+            Headers : []string{
+                "X-HTTP-Method-Override", "PATCH",
+            },
+            HeadersRegexp : []string{
+                "Authorization", "^Bearer",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
             Path : "/users/{id}",
             Handler : controllers.UsersEdit,
             Methods : []string{
@@ -102,6 +130,20 @@ func main() {
         gomc.Route{
             Path : "/users",
             Handler : controllers.UsersAdd,
+            Methods : []string{
+                "POST",
+            },
+            HeadersRegexp : []string{
+                "Authorization", "^Bearer",
+            },
+            ValidateRequest : true,
+            RateLimitRequest : true,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
+            Path : "/users/validate",
+            Handler : controllers.UsersAddValidate,
             Methods : []string{
                 "POST",
             },

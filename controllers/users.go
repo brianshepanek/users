@@ -66,6 +66,30 @@ func UsersAdd(w http.ResponseWriter, r *http.Request){
     }
 }
 
+func UsersAddValidate(w http.ResponseWriter, r *http.Request){
+
+    //Request Data
+    var datum, result models.UserSchema
+    json.NewDecoder(r.Body).Decode(&datum)
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+
+    //Set Data to Model
+    models.User.Data = datum
+
+    //Save
+    gomc.Validate(&models.User, &result)
+    if len(models.User.ValidationErrors) == 0 {
+        w.WriteHeader(http.StatusOK)
+    } else {
+        w.WriteHeader(http.StatusForbidden)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.User.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
+    }
+}
+
 func UsersEdit(w http.ResponseWriter, r *http.Request){
 
     //Check Data
@@ -84,6 +108,33 @@ func UsersEdit(w http.ResponseWriter, r *http.Request){
     if len(models.User.ValidationErrors) == 0 {
         w.WriteHeader(http.StatusCreated)
         json.NewEncoder(w).Encode(result)
+    } else {
+        w.WriteHeader(http.StatusForbidden)
+        response := gomc.RequestErrorWrapper{
+            Message : "Validation Failed",
+            Errors : models.User.ValidationErrors,
+        }
+        json.NewEncoder(w).Encode(response)
+    }
+}
+
+func UsersEditValidate(w http.ResponseWriter, r *http.Request){
+
+    //Check Data
+    var datum, result models.UserSchema
+
+    json.NewDecoder(r.Body).Decode(&datum)
+
+    datum.Id = bson.ObjectIdHex(mux.Vars(r)["id"])
+    datum.OrganizationId = context.Get(r, gomc.RequestOrganizationId).(string)
+
+    //Set Data to Model
+    models.User.Data = datum
+    
+    //Save
+    gomc.Validate(&models.User, &result)
+    if len(models.User.ValidationErrors) == 0 {
+        w.WriteHeader(http.StatusOK)
     } else {
         w.WriteHeader(http.StatusForbidden)
         response := gomc.RequestErrorWrapper{
