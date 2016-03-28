@@ -2,7 +2,7 @@ package models
 
 import (
 	"time"
-	"users/config"
+	"github.com/brianshepanek/users/config"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/brianshepanek/gomc"
 )

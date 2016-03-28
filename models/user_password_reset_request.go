@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 	"gopkg.in/mgo.v2/bson"
-	"users/config"
+	"github.com/brianshepanek/users/config"
 	//"users/models"
 	"github.com/brianshepanek/gomc"
 	//"fmt"

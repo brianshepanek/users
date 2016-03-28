@@ -3,7 +3,7 @@ package controllers
 import (
     "fmt"
     "net/http"
-    "users/models"
+    "github.com/brianshepanek/users/models"
     "encoding/json"
     "github.com/brianshepanek/gomc"
 )

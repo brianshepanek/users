@@ -2,7 +2,7 @@ package models
 
 import (
 	"gopkg.in/mgo.v2/bson"
-	"users/config"
+	"github.com/brianshepanek/users/config"
 	"github.com/brianshepanek/gomc"
 	//"fmt"
 )

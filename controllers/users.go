@@ -5,7 +5,7 @@ import (
     "github.com/gorilla/mux"
     "github.com/gorilla/context"
     "gopkg.in/mgo.v2/bson"
-    "users/models"
+    "github.com/brianshepanek/users/models"
     "encoding/json"
     "github.com/brianshepanek/gomc"
     "time"

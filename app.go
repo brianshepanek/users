@@ -1,9 +1,9 @@
 package main 
 
 import (
-    "users/config"
-    "users/controllers"
-    "users/models"
+    "github.com/brianshepanek/users/config"
+    "github.com/brianshepanek/users/controllers"
+    "github.com/brianshepanek/users/models"
     "github.com/brianshepanek/gomc"
 )
 
