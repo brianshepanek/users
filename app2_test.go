@@ -28,3 +28,9 @@ func Test2Truth4(t *testing.T) {
         t.Error("everything I know is wrong")
     }
 }
+
+func Test2Truth5(t *testing.T) {
+    if true != true {
+        t.Error("everything I know is wrong")
+    }
+}
