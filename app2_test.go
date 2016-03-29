@@ -5,25 +5,25 @@ import (
 )
 
 
-func TestTruth(t *testing.T) {
+func Test2Truth(t *testing.T) {
     if true != true {
         t.Error("everything I know is wrong")
     }
 }
 
-func TestTruth2(t *testing.T) {
+func Test2Truth2(t *testing.T) {
     if true != true {
         t.Error("everything I know is wrong")
     }
 }
 
-func TestTruth3(t *testing.T) {
+func Test2Truth3(t *testing.T) {
     if true != true {
         t.Error("everything I know is wrong")
     }
 }
 
-func TestTruth4(t *testing.T) {
+func Test2Truth4(t *testing.T) {
     if true != true {
         t.Error("everything I know is wrong")
     }
