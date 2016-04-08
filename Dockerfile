@@ -1,4 +1,4 @@
 FROM golang:1.6.0
-COPY . /go/src/app
-RUN go install app
-CMD ["app"]
+COPY . /go/src/github.com/brianshepanek/users
+RUN go get -t ./src/github.com/brianshepanek/users
+CMD ["users"]
