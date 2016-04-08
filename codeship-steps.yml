@@ -4,3 +4,4 @@
   image_name: https://index.docker.io/v1/brianshepanek/users-golang
   image_tag: "{{.StringTime}}"
   registry: https://index.docker.io/v1/
+  encrypted_dockercfg_path: dockercfg
