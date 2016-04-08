@@ -1,0 +1,18 @@
+app:
+    build:
+        image: golang:1.5.2
+    environment:
+        GOMC_CONFIG: "local"
+    volumes:
+        - $PWD:/go/src/github.com/brianshepanek/users    
+    links:
+        - mongo
+        - redis
+        - elasticsearch
+    command : bash -c "go install github.com/brianshepanek/users && users"     
+mongo:
+    image: mongo:3.2.4
+redis:
+    image: redis:3.0.7
+elasticsearch
+    image: elasticsearch:2.3.1    

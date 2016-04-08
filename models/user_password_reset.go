@@ -3,7 +3,6 @@ package models
 import (
 	//"time"
 	//"gopkg.in/mgo.v2/bson"
-	"github.com/brianshepanek/users/config"
 	//"users/models"
 	"github.com/brianshepanek/gomc"
 	//"fmt"
@@ -23,7 +22,6 @@ var userPasswordResetSchema UserPasswordResetSchema
 
 var UserPasswordReset = UserPasswordResetModel{
 	gomc.Model {
-		AppConfig : config.Config,
 		UseDatabaseConfig : "default",
 		UseTable : "password_reset_requests",
 		Schema : userPasswordResetSchema,

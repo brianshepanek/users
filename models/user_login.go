@@ -2,7 +2,6 @@ package models
 
 import (
 	"gopkg.in/mgo.v2/bson"
-	"github.com/brianshepanek/users/config"
 	"github.com/brianshepanek/gomc"
 	//"fmt"
 )
@@ -24,7 +23,6 @@ var userLoginSchema UserLoginSchema
 
 var UserLogin = UserLoginModel{
 	gomc.Model {
-		AppConfig : config.Config,
 		UseDatabaseConfig : "default",
 		UseTable : "users",
 		PrimaryKey : "Id",

@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-	"github.com/brianshepanek/users/config"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/brianshepanek/gomc"
 )
@@ -26,7 +25,6 @@ var rootUserSchema RootUserSchema
 
 var RootUser = RootUserModel{
 	gomc.Model {
-		AppConfig : config.Config,
 		UseDatabaseConfig : "default",
 		UseTable : "users",
 		PrimaryKey : "Id",

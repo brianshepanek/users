@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-	"github.com/brianshepanek/users/config"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/brianshepanek/gomc"
 	//"regexp"
@@ -27,7 +26,6 @@ var userSchema UserSchema
 
 var User = UserModel{
 	gomc.Model {
-		AppConfig : config.Config,
 		UseDatabaseConfig : "default",
 		UseTable : "users",
 		PrimaryKey : "Id",
