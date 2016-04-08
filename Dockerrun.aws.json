@@ -11,7 +11,13 @@
                     "hostPort": 80,
                     "containerPort": 8080
                 }
-            ]
+            ],
+            "environment": [
+                {
+                    "name": "GOMC_CONFIG",
+                    "value": "local"
+                }
+            ],
         }
     ]
 }
