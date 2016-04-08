@@ -1,5 +1,5 @@
-- type: push
-  service: app
+- service: app
+  type: push
   name: build-push
   image_name: https://index.docker.io/v1/brianshepanek/users-golang
   image_tag: "{{.StringTime}}"
