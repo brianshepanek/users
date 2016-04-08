@@ -1,6 +1,6 @@
 app:
     build:
-        image: app
+        image: brianshepanek/users-golang
         dockerfile_path: Dockerfile
     environment:
         GOMC_CONFIG: "local"   
