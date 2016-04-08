@@ -6,4 +6,4 @@
   registry: https://index.docker.io/v1/
   encrypted_dockercfg_path: dockercfg.encrypted
 - service: awsdeployment
-  command: aws s3 ls s3://codeship_aws_deployment_integration_test  
+  command: aws s3 ls s3://ugp-codeship-test-2  
