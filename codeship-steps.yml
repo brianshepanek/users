@@ -6,6 +6,6 @@
   registry: https://index.docker.io/v1/
   encrypted_dockercfg_path: dockercfg.encrypted
 - service: awsdeployment
-  command: aws s3 ls s3://ugp-codeship-test-2
+  command: zip /deploy/Dockerrun.aws.json /deploy/app.zip 
 - service: awsdeployment
-  command: aws s3 cp /deploy/README.md s3://ugp-codeship-test-2  
+  command: aws s3 cp /deploy/app.zip s3://app.zip  
