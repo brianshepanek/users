@@ -7,8 +7,7 @@ app:
     links:
         - mongo
         - redis
-        - elasticsearch
-    command : bash -c "go install github.com/brianshepanek/users && users"     
+        - elasticsearch     
 mongo:
     image: mongo:3.2.4
 redis:

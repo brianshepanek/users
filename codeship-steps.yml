@@ -2,5 +2,5 @@
   service: app
   name: build-push
   image_name: https://index.docker.io/v1/brianshepanek/users-golang
-  image_tag: "{{StringTime}}"
+  image_tag: "{{.StringTime}}"
   registry: https://index.docker.io/v1/
