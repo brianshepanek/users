@@ -1,10 +1,9 @@
 app:
     build:
-        image: golang:1.5.2
+        image: app
+        dockerfile_path: Dockerfile
     environment:
-        GOMC_CONFIG: "local"
-    volumes:
-        - $PWD:/go/src/github.com/brianshepanek/users    
+        GOMC_CONFIG: "local"   
     links:
         - mongo
         - redis
@@ -14,5 +13,5 @@ mongo:
     image: mongo:3.2.4
 redis:
     image: redis:3.0.7
-elasticsearch
+elasticsearch:
     image: elasticsearch:2.3.1    

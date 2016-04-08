@@ -1,5 +1,6 @@
-type: push
-name: build-push
-image_name: https://index.docker.io/v1/brianshepanek/users-golang
-image_tag: "{{StringTime}}"
-registry: https://index.docker.io/v1/
+- type: push
+  service: app
+  name: build-push
+  image_name: https://index.docker.io/v1/brianshepanek/users-golang
+  image_tag: "{{StringTime}}"
+  registry: https://index.docker.io/v1/
