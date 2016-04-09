@@ -11,6 +11,17 @@ func main() {
     
     gomc.RegisterRoute(
         gomc.Route{
+            Path : "/",
+            Handler : controllers.AppIndex,
+            Methods : []string{
+                "GET",
+            },
+            ValidateRequest : false,
+            RateLimitRequest : false,
+        },
+    )
+    gomc.RegisterRoute(
+        gomc.Route{
             Path : "/users",
             Handler : controllers.UsersIndex,
             Methods : []string{
