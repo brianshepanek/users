@@ -7,8 +7,7 @@ import (
     "github.com/brianshepanek/gomc"
 )
 
-func main() {
-    
+func AppRun(port string){
     gomc.RegisterRoute(
         gomc.Route{
             Path : "/",
@@ -221,6 +220,11 @@ func main() {
     gomc.Config.LimitUser = 1000000000000
     gomc.Config.RateLimitDataUseDatabaseConfig = "redis"
 
-    gomc.Run()
     
+    gomc.Run(port)
+    
+}
+
+func main() {
+    AppRun("8080")
 }
